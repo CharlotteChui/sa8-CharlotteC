@@ -2,10 +2,14 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import Immutable from 'immutable';
-import * as firebasedb from './services/datastore';
+// import * as firebasedb from './services/datastore';
 import InputBar from './components/input_bar';
 import Note from './components/note';
 import './style.scss';
+// at top
+import io from 'socket.io-client';
+const socketserver = 'http://localhost:9090';
+
 
 class App extends Component {
   constructor(props) {
@@ -20,12 +24,21 @@ class App extends Component {
     this.deleteNote = this.deleteNote.bind(this);
     this.update = this.update.bind(this);
     this.push = this.push.bind(this);
+    this.socket = io(socketserver);
+    this.socket.on('connect', () => { console.log('socket.io connected'); });
+    this.socket.on('disconnect', () => { console.log('socket.io disconnected'); });
+    this.socket.on('reconnect', () => { console.log('socket.io reconnected'); });
+    this.socket.on('error', (error) => { console.log(error); });
   }
 
   componentDidMount() {
-    firebasedb.fetchNotes((notes) => {
+
+    // do
+    this.socket.on('notes', (notes) => {
+      // where you handle all the setState and immutable stuff
+      // keep this
       this.setState({ notes: Immutable.Map(notes) });
-    });
+    });      
     firebasedb.fetchZ((z) => {
       this.setState({ maxZ: z });
     });
@@ -57,7 +70,8 @@ class App extends Component {
     console.log(note);
     this.state.maxZ = this.state.maxZ + 1;
     firebasedb.updateMaxZ(this.state.maxZ + 1);
-    firebasedb.addNote(note);
+    // firebasedb.addNote(note);
+    this.socket.emit('createNote', title);
   }
 
 
@@ -76,13 +90,16 @@ class App extends Component {
   }
 
   deleteNote(id) {
-    firebasedb.deleteNote(id);
+    // firebasedb.deleteNote(id);
+    this.socket.emit('deleteNote', id);
   }
 
   update(id, field) {
     // field.zIndex = this.state.maxZ;
-    firebasedb.update(id, Object.assign({}, this.state.notes.get(id), field));
+    // firebasedb.update(id, Object.assign({}, this.state.notes.get(id), field));
     // firebasedb.updateZ(id, this.state.maxZ);
+    this.socket.emit('updateNote', id, fields);
+
   }
 
 
