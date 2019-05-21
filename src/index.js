@@ -2,12 +2,13 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import Immutable from 'immutable';
-// import * as firebasedb from './services/datastore';
+import io from 'socket.io-client';
+import * as firebasedb from './services/datastore';
+
 import InputBar from './components/input_bar';
 import Note from './components/note';
 import './style.scss';
 // at top
-import io from 'socket.io-client';
 const socketserver = 'http://localhost:9090';
 
 
@@ -32,13 +33,12 @@ class App extends Component {
   }
 
   componentDidMount() {
-
     // do
     this.socket.on('notes', (notes) => {
       // where you handle all the setState and immutable stuff
       // keep this
       this.setState({ notes: Immutable.Map(notes) });
-    });      
+    });
     firebasedb.fetchZ((z) => {
       this.setState({ maxZ: z });
     });
@@ -71,7 +71,7 @@ class App extends Component {
     this.state.maxZ = this.state.maxZ + 1;
     firebasedb.updateMaxZ(this.state.maxZ + 1);
     // firebasedb.addNote(note);
-    this.socket.emit('createNote', title);
+    this.socket.emit('createNote', newTitle.title);
   }
 
 
@@ -98,8 +98,7 @@ class App extends Component {
     // field.zIndex = this.state.maxZ;
     // firebasedb.update(id, Object.assign({}, this.state.notes.get(id), field));
     // firebasedb.updateZ(id, this.state.maxZ);
-    this.socket.emit('updateNote', id, fields);
-
+    this.socket.emit('updateNote', id, field);
   }
 
 

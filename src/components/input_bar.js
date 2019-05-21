@@ -15,6 +15,7 @@ class InputBar extends Component {
   onSubmit(event) {
     event.preventDefault();
     console.log('creating new note');
+    // eslint-disable-next-line react/destructuring-assignment
     this.props.addNote({
       title: this.state.newTitle,
     });
@@ -23,6 +24,7 @@ class InputBar extends Component {
 
   render() {
     return (
+      // eslint-disable-next-line react/jsx-filename-extension
       <div id="input_bar">
         <input placeholder="Note Title" onChange={this.onInputChange} value={this.state.newTitle} />
         <button type="button" onClick={this.onSubmit}> Create Note </button>
